@@ -8,8 +8,9 @@
 
 ### Структура проекта
 
+```
 ├── protos/
-│ ├── __init__.py
+│ ├── _ _init__.py
 │ ├── model.proto
 │ ├── model_pb2.py
 │ └── model_pb2_grpc.py
@@ -25,6 +26,7 @@
 ├── Dockerfile
 ├── .dockerignore
 └── README.md
+```
 
 ### Модель.
 

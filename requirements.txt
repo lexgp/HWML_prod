@@ -1,0 +1,6 @@
+pandas==2.3.3
+scikit-learn==1.6.1
+grpcio==1.76.0
+grpcio-tools==1.76.0
+protobuf==6.33.2
+grpcio-reflection

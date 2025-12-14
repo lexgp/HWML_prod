@@ -1,9 +1,9 @@
 ## Домашнее задание 3. Настройка стратегий развертывания модели
 Автор: *Зырянов Алексей Николаевич*, М08-401НД, 14.12.2025
 
-### ML Model Deployment with Canary Strategy
+### ML Model Deployment с Canary Strategy
 
-Развертывание ML-модели в продакшн с использованием Docker, Docker Compose, Nginx и ~~GitHub Actions~~, а также реализацию стратегии безопасного деплоя Canary Deployment.
+Развертывание ML-модели с использованием Docker, Docker Compose, Nginx и ~~GitHub Actions~~, а также реализация стратегии безопасного деплоя Canary Deployment.
 
 В рамках проекта используется REST API для инференса ML-модели и проверки состояния сервиса.
 

@@ -1,73 +1,83 @@
-## Домашнее задание 2. Реализация /health и /predict эндпоинтов в gRPC-сервисе
-Автор: *Зырянов Алексей Николаевич*, М08-401НД, 07.12.2025
+## Домашнее задание 3. Настройка стратегий развертывания модели
+Автор: *Зырянов Алексей Николаевич*, М08-401НД, 14.12.2025
 
-Минимальный gRPC ML-сервис с двумя эндпоинтами:
+### ML Model Deployment with Canary Strategy
 
-- `/health` — проверка статуса и версии модели
-- `/predict` — предсказание и confidence для вектора признаков
+Развертывание ML-модели в продакшн с использованием Docker, Docker Compose, Nginx и ~~GitHub Actions~~, а также реализацию стратегии безопасного деплоя Canary Deployment.
+
+В рамках проекта используется REST API для инференса ML-модели и проверки состояния сервиса.
 
 ### Структура проекта
 
 ```
-├── protos/
-│ ├── _ _init__.py
-│ ├── model.proto
-│ ├── model_pb2.py
-│ └── model_pb2_grpc.py
-├── server/
-│ └── server.py
-├── client/
-│ └── client.py
-├── models/
-│ └── model.pkl
-├── data/
-│ └── data.csv
-├── requirements.txt
+.
+├── data
+│   └── data.csv
+├── docker-compose.yml
 ├── Dockerfile
-├── .dockerignore
-└── README.md
+├── models
+│   ├── model_1.1.pkl
+│   └── model.pkl
+├── nginx
+│   └── nginx.conf
+├── protos
+│   ├── __init__.py
+│   ├── model_pb2_grpc.py
+│   ├── model_pb2.py
+│   ├── model.proto
+├── README.md
+├── requirements.txt
+├── server
+│   ├── main.py
+├── train_model.py
 ```
 
-### Модель.
+### Описание решения.
 
-В проекте используется очень сложная и больная модель предсказывающая нолик или единичку на основе пяти взятых с потолка вещественных чисел (data/data.csv).
+- ML-сервис реализован в виде REST API
+- Модель загружается из файла (.pkl), имя файла передаётся через переменную окружения `MODEL_PATH`
+- Версия модели передаётся через переменную окружения `MODEL_VERSION`
+- Сервис упакован в Docker-контейнер
+- ~~Развертывание автоматизировано через GitHub Actions~~
+- Реализована стратегия Canary Deployment с помощью Nginx
 
-### Окружение и зависимости
+### Стратегия деплоя
+
+**Blue-Green + Canary**
+
+Файл `docker-compose.yml` объединяет в себе `blue` и `green` версии сервиса:
+
+- blue - стабильная версия модели (v1.0.0)
+- green - новая версия модели (v1.1.0)
+
+Обе версии работают одновременно.
+
+**Canary Deployment**
+
+Балансировщик Nginx распределяет входящий трафик между версиями:
+
+- 90% запросов → blue
+- 10% запросов → green
+
+Распределение трафика происходит автоматически и случайным образом за счёт весов серверов в конфигурации Nginx.
+При обнаружении ошибок новая версия может быть мгновенно отключена (rollback).
+
+### Сборка и запуск всех сервисов
 
 ```bash
-python3 -m venv ./venv
-source venv/bin/activate
-pip3 install -r requirements.txt
+docker compose up --build
 ```
 
-### Генерация контрактный файлов
+Будут запущены:
 
-python -m grpc_tools.protoc \
-  -I. \
-  --python_out=. \
-  --grpc_python_out=. \
-  protos/model.proto
+- ml-blue (v1.0.0)
+- ml-green (v1.1.0)
+- nginx (порт 8000)
 
-### Сборка и запуск контейнера
+### Проверка состояния сервиса и балансировки
 
 ```bash
-docker build -t grpc-ml-service .
-
-docker run --rm -p 50051:50051 \
-  -e MODEL_PATH=/app/models/model.pkl \
-  -e MODEL_VERSION=v1.0.0 \
-  grpc-ml-service
+for i in {1..20}; do
+  curl -s http://localhost:8000/health
+done
 ```
-
-![Запуск сервера в docker](docs/docker-run.png)
-
-### Тест со стороны клиентов
-
-```bash
-grpcurl -plaintext localhost:50051 mlservice.v1.PredictionService.Health
-
-python3 -m client.client
-
-```
-
-![Тест сервиса со стороны клиентов](docs/client-test.png)

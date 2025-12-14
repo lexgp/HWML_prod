@@ -81,3 +81,5 @@ for i in {1..20}; do
   curl -s http://localhost:8000/health
 done
 ```
+
+![Тест сервиса со стороны клиентов](docs/canary-test.png)

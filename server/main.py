@@ -8,6 +8,7 @@ from pydantic import BaseModel
 import time
 from prometheus_client import Histogram, generate_latest, CONTENT_TYPE_LATEST
 from fastapi.responses import Response
+import random
 
 MODEL_PATH = os.getenv("MODEL_PATH", "models/model.pkl")
 MODEL_VERSION = os.getenv("MODEL_VERSION", "v1.0.0")
@@ -55,7 +56,7 @@ def predict(req: PredictRequest):
         pred = model.predict(arr)
 
         # искусственно замедляем для проверки алерта
-        time.sleep(1.5)
+        time.sleep(random.uniform(0.1, 2.0))
 
         prediction = str(int(pred[0]) if hasattr(pred[0], "__int__") else str(pred[0]))
         confidence = 1.0

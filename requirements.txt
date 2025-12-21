@@ -6,3 +6,4 @@ protobuf==6.33.2
 grpcio-reflection
 fastapi
 uvicorn
+prometheus-client

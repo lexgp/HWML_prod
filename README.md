@@ -74,7 +74,7 @@ Prometheus настроен на сбор метрик с сервиса чер�
 
 **Скриншот:**
 
-![grafana datasource](docs/4.2-prometeus_grafana_connect.png)
+![grafana datasource](docs/4.2-prometeus_grafana_connected.png)
 
 ---
 
